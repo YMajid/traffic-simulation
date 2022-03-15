@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.random as rand
+from itertools import product
 
 
 class NSModel:
@@ -12,10 +13,10 @@ class NSModel:
         self.lane_len = lane_len
         self.max_velocity = max_velocity
         self.lane_density = lane_density
-        self.initialize_highway()
+        self.__initialize_highway()
 
-    def initialize_highway(self):
-        self.highway = np.zeros((self.n_lanes, self.lane_len))
+    def __initialize_highway(self):
+        self.highway = -1 * np.ones((self.n_lanes, self.lane_len))
 
         for lane in range(0, self.n_lanes):
             indices = rand.choice(self.lane_len,
@@ -24,6 +25,22 @@ class NSModel:
             for index in indices:
                 self.highway[lane,
                              index] = rand.randint(0, self.max_velocity + 1)
+
+    def __update_velocity(self):
+        for i, j in product(self.n_lanes, self.lane_len):
+            if self.highway[i, j] == -1:
+                continue
+
+            distance = 1
+            while self.highway[i, (j + distance) % self.lane_len] == -1:
+                distance += 1
+
+    def __update_position(self):
+        pass
+
+    def __change_lanes(self):
+        if self.n_lanes == 1:
+            return
 
 
 if __name__ == "__main__":
