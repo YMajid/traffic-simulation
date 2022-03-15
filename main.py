@@ -14,6 +14,9 @@ class NSModel:
         self.max_velocity = max_velocity
         self.lane_density = lane_density
         self.__initialize_highway()
+        print(self.highway)
+        self.__update_velocity()
+        print(self.highway)
 
     def __initialize_highway(self):
         self.highway = -1 * np.ones((self.n_lanes, self.lane_len))
@@ -27,13 +30,22 @@ class NSModel:
                              index] = rand.randint(0, self.max_velocity + 1)
 
     def __update_velocity(self):
-        for i, j in product(self.n_lanes, self.lane_len):
+        prob = rand.rand()
+        for i, j in product(range(0, self.n_lanes), range(0, self.lane_len)):
             if self.highway[i, j] == -1:
                 continue
 
             distance = 1
             while self.highway[i, (j + distance) % self.lane_len] == -1:
                 distance += 1
+
+            if distance <= self.highway[i, j] + 1:
+                self.highway[i, j] = distance - 1
+            elif self.highway[i, j] < self.max_velocity:
+                self.highway[i, j] += 1
+
+            if rand.rand() < prob:
+                self.highway[i, j] -= 1
 
     def __update_position(self):
         pass
@@ -45,4 +57,3 @@ class NSModel:
 
 if __name__ == "__main__":
     x = NSModel()
-    print(x.highway)
