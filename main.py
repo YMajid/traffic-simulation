@@ -17,6 +17,8 @@ class NSModel:
 
     def main(self):
         print(self.highway)
+        self.__change_lanes()
+        print(self.highway)
         self.__update_velocity()
         print(self.highway)
         self.__update_position()
@@ -84,29 +86,32 @@ class NSModel:
                 self.highway[i, j] = -1
 
     def __can_switch_lane(self, direction=0, lane=0, pos=0):
-        if direction == 0 or self.highway[(lane + direction) % self.n_lanes,
-                                          pos] == -1:
+        new_lane = lane + direction
+        next_lane = lane + 2 * direction
+        if direction == 0 or new_lane < 0 or self.n_lanes <= new_lane or self.highway[
+                new_lane, pos] == -1:
             return False
 
         curr_max_velocity = self.__get_max_velocity(lane, pos)
-        alt_max_velocity = self.__get_max_velocity(
-            (lane + direction) % self.n_lanes, pos)
+        alt_max_velocity = self.__get_max_velocity(new_lane, pos)
 
-        if alt_max_velocity < curr_max_velocity or self.highway[
-            (lane + 2 * direction) % self.n_lanes,
-                pos] != -1 or self.__can_pass_prev_car(
-                    (lane + direction) % self.lane_len, pos):
+        if curr_max_velocity < alt_max_velocity:
+            return False
+        elif next_lane < 0 or self.n_lanes <= next_lane or self.highway[
+                next_lane, pos] != -1:
+            return False
+        elif self.__will_crash(new_lane, pos):
             return False
 
         return True
 
-    def __can_pass_prev_car(self, lane, pos):
+    def __will_crash(self, lane, pos):
         distance = 1
         while self.highway[lane, (pos - distance) % self.lane_len] == -1:
             distance += 1
         max_velocity = self.__get_max_velocity(lane, (pos - distance) %
                                                self.lane_len)
-        return max_velocity < distance
+        return max_velocity <= distance
 
 
 if __name__ == "__main__":
