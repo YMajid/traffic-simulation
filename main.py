@@ -1,5 +1,10 @@
-from src.model import NSModel
+from src.validation import validation
 
 if __name__ == "__main__":
-    x = NSModel()
-    x.simulate()
+    import time
+
+    start = time.time()
+    validation()
+    end = time.time()
+
+    print(end - start)

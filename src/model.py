@@ -1,6 +1,5 @@
 import numpy as np
 import numpy.random as rand
-from itertools import product
 
 
 class NSModel:
@@ -9,16 +8,20 @@ class NSModel:
                  n_lanes=3,
                  lane_len=100,
                  max_velocity=5,
-                 lane_density=0.3):
+                 lane_density=0.3,
+                 lane_changes=True):
         self.prob = prob
         self.n_lanes = n_lanes
         self.lane_len = lane_len
         self.max_velocity = max_velocity
         self.lane_density = lane_density
+        self.lane_changes = lane_changes
+        self.flow_count = 0
         self.__initialize_highway()
 
     def simulate(self):
-        self.__change_lanes()
+        if self.lane_changes:
+            self.__update_lanes()
         self.__update_velocity()
         self.__update_position()
 
@@ -40,14 +43,15 @@ class NSModel:
                              index] = rand.randint(0, self.max_velocity + 1)
 
     def __update_velocity(self):
-        for i, j in product(range(0, self.n_lanes), range(0, self.lane_len)):
-            if self.highway[i, j] == -1:
-                continue
+        for i in range(0, self.n_lanes):
+            for j in range(0, self.lane_len):
+                if self.highway[i, j] == -1:
+                    continue
 
-            self.highway[i, j] = self.__get_max_velocity(i, j)
+                self.highway[i, j] = self.__get_max_velocity(i, j)
 
-            if 1 <= self.highway[i, j] and rand.rand() < self.prob:
-                self.highway[i, j] -= 1
+                if 1 <= self.highway[i, j] and rand.rand() < self.prob:
+                    self.highway[i, j] -= 1
 
     def __get_max_velocity(self, lane, pos):
         distance = 1
@@ -55,7 +59,7 @@ class NSModel:
             distance += 1
 
         max_velocity = self.highway[lane, pos]
-        if distance < self.highway[lane, pos] + 1:
+        if distance <= self.highway[lane, pos] + 1:
             max_velocity = distance - 1
         elif self.highway[lane, pos] < self.max_velocity:
             max_velocity = self.highway[lane, pos] + 1
@@ -65,29 +69,35 @@ class NSModel:
     def __update_position(self):
         updated_highway = -1 * \
             np.ones((self.n_lanes, self.lane_len), dtype=int)
-        for i, j in product(range(0, self.n_lanes), range(0, self.lane_len)):
-            if self.highway[i, j] == -1:
-                continue
 
-            updated_highway[i, (j + self.highway[i, j]) %
-                            self.lane_len] = self.highway[i, j]
+        for i in range(0, self.n_lanes):
+            for j in range(0, self.lane_len):
+                if self.highway[i, j] == -1:
+                    continue
+
+                if self.lane_len <= j + self.highway[i, j]:
+                    self.flow_count += 1
+
+                updated_highway[i, (j + self.highway[i, j]) %
+                                self.lane_len] = self.highway[i, j]
 
         self.highway = updated_highway
 
-    def __change_lanes(self):
+    def __update_lanes(self):
         if self.n_lanes == 1:
             return
 
-        for i, j in product(range(0, self.n_lanes), range(0, self.lane_len)):
-            if rand.rand() < self.prob:
-                continue
+        for i in range(0, self.n_lanes):
+            for j in range(0, self.lane_len):
+                if rand.rand() < self.prob:
+                    continue
 
-            direction = -1 if rand.rand() < 0.5 else 1
-            if self.__can_switch_lane(direction, i,
-                                      j) and rand.rand() < self.prob:
-                self.highway[(i + direction) % self.n_lanes,
-                             j] = self.highway[i, j]
-                self.highway[i, j] = -1
+                direction = -1 if rand.rand() < 0.5 else 1
+                if self.__can_switch_lane(direction, i,
+                                          j) and rand.rand() < self.prob:
+                    self.highway[(i + direction) % self.n_lanes,
+                                 j] = self.highway[i, j]
+                    self.highway[i, j] = -1
 
     def __can_switch_lane(self, direction=0, lane=0, pos=0):
         new_lane = lane + direction
