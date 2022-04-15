@@ -1,6 +1,7 @@
 import numpy as np
 from src.model import NSModel
 import matplotlib.pyplot as plt
+from multiprocessing import cpu_count
 from concurrent.futures import ProcessPoolExecutor as PoolExecutor
 
 
@@ -11,7 +12,7 @@ def plt_helper(title, xlabel, ylabel, save=False):
     plt.legend(loc="upper right")
 
     if save:
-        plt.savefig(f"../figures/{title}.png", format="png")
+        plt.savefig(f"./figures/{title}.png", format="png")
     else:
         plt.show()
 
@@ -40,7 +41,8 @@ def velocity_to_density(delta=0.01, steps=200):
     for prob in mean_velocity.keys():
         plt.plot(densities, mean_velocity[prob], label=f"p={prob}")
 
-    plt_helper("Mean Velocity vs. Density", "Density", "Mean Velocity", True)
+    plt_helper("Mean Velocity vs. Density",
+               "Density (cars/lane)", "Mean Velocity (m/s)", True)
 
 
 def flow_rate_to_density(delta=0.01, steps=10000, lane_len=200):
@@ -67,7 +69,8 @@ def flow_rate_to_density(delta=0.01, steps=10000, lane_len=200):
                  flow_rates[max_velocity],
                  label=f"Max Velocity={max_velocity}")
 
-    plt_helper("Flow Rate vs. Density", "Density", "Flow Rate", True)
+    plt_helper("Flow Rate vs. Density", "Density (cars/lane)",
+               "Flow Rate (cars/step)", True)
 
 
 def cars_per_site(steps=200, lane_len=200):
@@ -91,7 +94,7 @@ def cars_per_site(steps=200, lane_len=200):
 
 
 def validation():
-    with PoolExecutor(max_workers=2) as executor:
+    with PoolExecutor(max_workers=cpu_count()) as executor:
         executor.submit(velocity_to_density())
         executor.submit(flow_rate_to_density())
         executor.submit(cars_per_site())
