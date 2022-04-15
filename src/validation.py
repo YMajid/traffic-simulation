@@ -4,12 +4,16 @@ import matplotlib.pyplot as plt
 from concurrent.futures import ProcessPoolExecutor as PoolExecutor
 
 
-def plt_helper(title, xlabel, ylabel):
+def plt_helper(title, xlabel, ylabel, save=False):
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.legend(loc="upper right")
-    plt.show()
+
+    if save:
+        plt.savefig(f"../figures/{title}.png", format="png")
+    else:
+        plt.show()
 
 
 def velocity_to_density(delta=0.01, steps=200):
@@ -25,7 +29,7 @@ def velocity_to_density(delta=0.01, steps=200):
                             max_velocity=5,
                             lane_density=density,
                             lane_changes=False)
-            for x in range(0, steps + 1):
+            for _ in range(0, steps + 1):
                 for _ in range(0, 10):
                     model.simulate()
                     curr_values.append(model.highway_velocity())
@@ -34,7 +38,7 @@ def velocity_to_density(delta=0.01, steps=200):
     for prob in mean_velocity.keys():
         plt.plot(densities, mean_velocity[prob], label=f"p={prob}")
 
-    plt_helper("Mean Velocity vs. Density", "Density", "Mean Velocity")
+    plt_helper("Mean Velocity vs. Density", "Density", "Mean Velocity", True)
 
 
 def flow_rate_to_density(delta=0.01, steps=10000, lane_len=200):
@@ -44,7 +48,7 @@ def flow_rate_to_density(delta=0.01, steps=10000, lane_len=200):
     for max_velocity in flow_rates.keys():
         for density in densities:
             curr_values = []
-            for x in range(0, steps + 1):
+            for _ in range(0, steps + 1):
                 model = NSModel(prob=0.5,
                                 n_lanes=1,
                                 lane_len=lane_len,
@@ -61,7 +65,7 @@ def flow_rate_to_density(delta=0.01, steps=10000, lane_len=200):
                  flow_rates[max_velocity],
                  label=f"Max Velocity={max_velocity}")
 
-    plt_helper("Flow Rate vs. Density", "Density", "Flow Rate")
+    plt_helper("Flow Rate vs. Density", "Density", "Flow Rate", True)
 
 
 def cars_per_site(steps=200, lane_len=200):
@@ -78,11 +82,10 @@ def cars_per_site(steps=200, lane_len=200):
         model.simulate()
         for v in model.highway[0]:
             curr_values.append(v)
-            # curr_values.append(0 if v == -1 else 1)
         values.append(curr_values)
 
     plt.imshow(values, cmap="Blues", interpolation="nearest")
-    plt_helper("", "Site", "Step")
+    plt_helper("Cars per Site", "Site", "Step", True)
 
 
 def validation():
