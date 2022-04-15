@@ -15,6 +15,8 @@ def plt_helper(title, xlabel, ylabel, save=False):
     else:
         plt.show()
 
+    plt.cla()
+
 
 def velocity_to_density(delta=0.01, steps=200):
     mean_velocity = {"0.0": [], "0.5": []}
