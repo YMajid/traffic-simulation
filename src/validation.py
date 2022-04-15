@@ -45,7 +45,7 @@ def velocity_to_density(delta=0.01, steps=200):
                "Density (cars/lane)", "Mean Velocity (m/s)", True)
 
 
-def flow_rate_to_density(delta=0.01, steps=10000, lane_len=200):
+def flow_rate_to_density(delta=0.01, steps=100, lane_len=200):
     flow_rates = {"1": [], "3": [], "5": []}
     densities = np.arange(0, 1 + delta, delta)
 
