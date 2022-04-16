@@ -31,7 +31,8 @@ def velocity_to_density(delta=0.01, steps=200):
                             lane_len=200,
                             max_velocity=5,
                             lane_density=density,
-                            lane_changes=False)
+                            lane_changes=False,
+                            initialize_highway=True)
             for _ in range(0, steps + 1):
                 for _ in range(0, 10):
                     model.simulate()
@@ -41,11 +42,11 @@ def velocity_to_density(delta=0.01, steps=200):
     for prob in mean_velocity.keys():
         plt.plot(densities, mean_velocity[prob], label=f"p={prob}")
 
-    plt_helper("Mean Velocity vs. Density",
-               "Density (cars/lane)", "Mean Velocity (m/s)", True)
+    plt_helper("Mean Velocity vs. Density", "Density (cars/lane)",
+               "Mean Velocity (m/s)", True)
 
 
-def flow_rate_to_density(delta=0.01, steps=100, lane_len=200):
+def flow_rate_to_density(delta=0.01, steps=10000, lane_len=200):
     flow_rates = {"1": [], "3": [], "5": []}
     densities = np.arange(0, 1 + delta, delta)
 
@@ -58,7 +59,8 @@ def flow_rate_to_density(delta=0.01, steps=100, lane_len=200):
                                 lane_len=lane_len,
                                 max_velocity=int(max_velocity),
                                 lane_density=density,
-                                lane_changes=False)
+                                lane_changes=False,
+                                initialize_highway=True)
                 for _ in range(0, lane_len):
                     model.simulate()
                 curr_values.append(model.flow_count / lane_len)
@@ -79,7 +81,8 @@ def cars_per_site(steps=200, lane_len=200):
                     lane_len=lane_len,
                     max_velocity=5,
                     lane_density=0.5,
-                    lane_changes=False)
+                    lane_changes=False,
+                    initialize_highway=True)
 
     values = []
     for _ in range(0, steps + 1):

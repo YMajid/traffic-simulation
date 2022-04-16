@@ -9,7 +9,8 @@ class NSModel:
                  lane_len=100,
                  max_velocity=5,
                  lane_density=0.3,
-                 lane_changes=True):
+                 lane_changes=True,
+                 initialize_highway=True):
         self.prob = prob
         self.n_lanes = n_lanes
         self.lane_len = lane_len
@@ -17,13 +18,15 @@ class NSModel:
         self.lane_density = lane_density
         self.lane_changes = lane_changes
         self.flow_count = 0
-        self.__initialize_highway()
+
+        if initialize_highway:
+            self.initialize_highway()
 
     def simulate(self):
         if self.lane_changes:
-            self.__update_lanes()
-        self.__update_velocity()
-        self.__update_position()
+            self.update_lanes()
+        self.update_velocity()
+        self.update_position()
 
     def lane_velocity(self):
         return np.array([lane[lane != -1].mean() for lane in self.highway])
@@ -31,29 +34,33 @@ class NSModel:
     def highway_velocity(self):
         return self.lane_velocity().mean()
 
-    def __initialize_highway(self):
-        self.highway = -1 * np.ones((self.n_lanes, self.lane_len), dtype=int)
+    def highway_structure(self):
+        return -1 * np.ones((self.n_lanes, self.lane_len), dtype=int)
 
+    def populate_highway(self):
+        n_cars = int(self.lane_len * self.lane_density)
         for lane in range(0, self.n_lanes):
-            indices = rand.choice(self.lane_len,
-                                  size=int(self.lane_len * self.lane_density),
-                                  replace=False)
+            indices = rand.choice(self.lane_len, size=n_cars, replace=False)
             for index in indices:
                 self.highway[lane,
                              index] = rand.randint(0, self.max_velocity + 1)
 
-    def __update_velocity(self):
+    def initialize_highway(self):
+        self.highway = self.highway_structure()
+        self.populate_highway()
+
+    def update_velocity(self):
         for i in range(0, self.n_lanes):
             for j in range(0, self.lane_len):
                 if self.highway[i, j] == -1:
                     continue
 
-                self.highway[i, j] = self.__get_max_velocity(i, j)
+                self.highway[i, j] = self.get_max_velocity(i, j)
 
                 if 1 <= self.highway[i, j] and rand.rand() < self.prob:
                     self.highway[i, j] -= 1
 
-    def __get_max_velocity(self, lane, pos):
+    def get_max_velocity(self, lane, pos):
         distance = 1
         while self.highway[lane, (pos + distance) % self.lane_len] == -1:
             distance += 1
@@ -66,9 +73,8 @@ class NSModel:
 
         return max_velocity
 
-    def __update_position(self):
-        updated_highway = -1 * \
-            np.ones((self.n_lanes, self.lane_len), dtype=int)
+    def update_position(self):
+        updated_highway = self.highway_structure()
 
         for i in range(0, self.n_lanes):
             for j in range(0, self.lane_len):
@@ -83,7 +89,7 @@ class NSModel:
 
         self.highway = updated_highway
 
-    def __update_lanes(self):
+    def update_lanes(self):
         if self.n_lanes == 1:
             return
 
@@ -93,34 +99,34 @@ class NSModel:
                     continue
 
                 direction = -1 if rand.rand() < 0.5 else 1
-                if self.__can_switch_lane(direction, i,
-                                          j) and rand.rand() < self.prob:
+                if self.can_switch_lane(direction, i,
+                                        j) and rand.rand() < self.prob:
                     self.highway[(i + direction) % self.n_lanes,
                                  j] = self.highway[i, j]
                     self.highway[i, j] = -1
 
-    def __can_switch_lane(self, direction=0, lane=0, pos=0):
+    def can_switch_lane(self, direction=0, lane=0, pos=0):
         new_lane = lane + direction
         next_lane = lane + 2 * direction
         if (direction == 0 or new_lane < 0 or self.n_lanes <= new_lane
                 or self.highway[new_lane, pos] == -1):
             return False
 
-        curr_max_velocity = self.__get_max_velocity(lane, pos)
-        alt_max_velocity = self.__get_max_velocity(new_lane, pos)
+        curr_max_velocity = self.get_max_velocity(lane, pos)
+        alt_max_velocity = self.get_max_velocity(new_lane, pos)
 
         if (alt_max_velocity < curr_max_velocity or next_lane < 0
                 or self.n_lanes <= next_lane
                 or self.highway[next_lane, pos] != -1
-                or self.__will_crash(new_lane, pos)):
+                or self.will_crash(new_lane, pos)):
             return False
 
         return True
 
-    def __will_crash(self, lane, pos):
+    def will_crash(self, lane, pos):
         distance = 1
         while self.highway[lane, (pos - distance) % self.lane_len] == -1:
             distance += 1
-        max_velocity = self.__get_max_velocity(lane, (pos - distance) %
-                                               self.lane_len)
+        max_velocity = self.get_max_velocity(lane,
+                                             (pos - distance) % self.lane_len)
         return max_velocity <= distance
