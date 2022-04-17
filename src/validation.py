@@ -210,9 +210,9 @@ def flow_to_density(steps=100,
 def validation():
     futures = []
     with PoolExecutor(max_workers=cpu_count()) as executor:
-        futures.append(executor.submit(velocity_to_density()))
-        futures.append(executor.submit(flow_rate_to_density()))
-        futures.append(executor.submit(cars_per_site()))
+        futures.append(executor.submit(velocity_to_density(steps=3)))
+        # futures.append(executor.submit(flow_rate_to_density()))
+        # futures.append(executor.submit(cars_per_site()))
         executor.shutdown(wait=True)
 
 
@@ -243,7 +243,7 @@ if __name__ == "__main__":
 
     start = time.time()
     validation()
-    main_NS()
-    main_Z()
+    # main_NS()
+    # main_Z()
     end = time.time()
     print(end - start)

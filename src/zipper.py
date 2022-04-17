@@ -71,29 +71,32 @@ class Zipper(NSModel):
 
     def zipper_merge(self, direction, lane, pos):
         self.highway[lane + direction, pos] = self.highway[lane, pos]
+        self.highway[lane + direction,
+                     pos] = max(1, self.highway[lane + direction, pos])
         self.highway[lane, pos] = -1
+        print(
+            f"[{lane+direction},{pos}] {self.highway[lane + direction, pos]}")
 
     def update_position(self):
         updated_highway = self.highway.copy()
         for lane in updated_highway:
             lane[lane != -2] = -1
 
+        to_process = set()
         for i in range(0, self.n_lanes):
             for j in range(0, self.lane_len):
                 if self.highway[i, j] < 0:
                     continue
 
+                if (i, j) in to_process:
+                    updated_highway[i, j] = self.highway[i, j]
+                    continue
+
                 if self.highway[i, (j + self.highway[i, j] +
                                     (1 if self.highway[i, j] == 0 else 0)) %
                                 self.lane_len] == -2:
-                    direction = 1 if super().can_switch_lane(1, i, j) else - \
-                        1 if super().can_switch_lane(-1, i, j) else 0
-                    if direction == 0:
-                        print("here??")
-                        continue
-                    print("HERE")
-                    print(f"direction:{direction} i:{i}, j:{j}")
-                    self.zipper_merge(direction, i, j)
+                    to_process.add((i, j))
+                    continue
 
                 if self.lane_len <= j + self.highway[i, j]:
                     self.flow_count += 1
@@ -102,3 +105,26 @@ class Zipper(NSModel):
                                 self.lane_len] = self.highway[i, j]
 
         self.highway = updated_highway
+
+        for i, j in to_process:
+            direction = 1 if super().can_switch_lane(1, i, j) else - \
+                1 if super().can_switch_lane(-1, i, j) else 0
+            if direction == 0:
+                print("here??")
+                continue
+            self.zipper_merge(direction, i, j)
+            updated_highway[i, (j + self.highway[i, j]) %
+                            self.lane_len] = self.highway[i, j]
+            updated_highway[i + direction, (j + self.highway[i, j]) %
+                            self.lane_len] = self.highway[i + direction, j]
+        self.highway = updated_highway
+
+
+"""
+direction = 1 if super().can_switch_lane(1, i, j) else - \
+    1 if super().can_switch_lane(-1, i, j) else 0
+if direction == 0:
+    print("here??")
+    continue
+self.zipper_merge(direction, i, j)
+"""

@@ -7,7 +7,7 @@ if __name__ == "__main__":
     # model.simulate()
     # model.simulate()
     # model.simulate()
-    zipper = Zipper(n_lanes=3)
+    zipper = Zipper(n_lanes=3, lane_density=0.1)
     for _ in range(20):
         zipper.simulate()
 
