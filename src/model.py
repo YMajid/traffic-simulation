@@ -21,28 +21,28 @@ class NSModel:
 
         if initialize_highway:
             self.initialize_highway()
-        print("Original")
-        for lane in self.highway:
-            print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
-                          for p in lane))
+        # print("Original")
+        # for lane in self.highway:
+            # print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
+                          # for p in lane))
 
     def simulate(self):
         if self.lane_changes:
             self.update_lanes()
-            print("Lane Change")
-            for lane in self.highway:
-                print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
-                              for p in lane))
+            # print("Lane Change")
+            # for lane in self.highway:
+                # print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
+                              # for p in lane))
         self.update_velocity()
-        print("Velocity Change")
-        for lane in self.highway:
-            print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
-                          for p in lane))
+        # print("Velocity Change")
+        # for lane in self.highway:
+            # print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
+                          # for p in lane))
         self.update_position()
-        print("Position Change")
-        for lane in self.highway:
-            print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
-                          for p in lane))
+        # print("Position Change")
+        # for lane in self.highway:
+            # print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
+                          # for p in lane))
         print(self.car_count())
 
     def car_count(self):
