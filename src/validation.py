@@ -136,8 +136,9 @@ def velocity_to_density_lanes(delta=0.01, steps=100, prob=0.5, model=NSModel):
     for lane in mean_velocity.keys():
         plt.plot(densities, mean_velocity[lane], label=f"N={lane}")
 
-    plt_helper("Mean Velocity vs. Density for N highway lanes",
-               "Density (cars/lane)", "Mean Velocity (m/s)", True)
+    plt_helper(
+        "Mean Velocity vs. Density for N highway lanes - {type(model).__name__}",
+        "Density (cars/lane)", "Mean Velocity (m/s)", True)
 
 
 def velocity_to_density_speedlim(steps=100,
@@ -169,8 +170,9 @@ def velocity_to_density_speedlim(steps=100,
                  mean_velocity[speedlim],
                  label=f"Speed limit={speedlim} (m/s)")
 
-    plt_helper("Mean Velocity vs. Density for varying speed limits",
-               "Density (cars/lane)", "Mean Velocity (m/s)", True)
+    plt_helper(
+        "Mean Velocity vs. Density for varying speed limits - {type(model).__name__}",
+        "Density (cars/lane)", "Mean Velocity (m/s)", True)
 
 
 def flow_to_density(steps=100,
@@ -200,8 +202,9 @@ def flow_to_density(steps=100,
     for lane in flow_rates.keys():
         plt.plot(densities, flow_rates[lane], label=f"N={lane}")
 
-    plt_helper("Flow Rate vs. Density for N highway lanes",
-               "Density (cars/lane)", "Flow Rate (cars/step)", True)
+    plt_helper(
+        "Flow Rate vs. Density for N highway lanes - {type(model).__name__}",
+        "Density (cars/lane)", "Flow Rate (cars/step)", True)
 
 
 def validation():
