@@ -96,6 +96,88 @@ def cars_per_site(steps=200, lane_len=200):
 
     plt.imshow(values, cmap="Blues", interpolation="nearest")
     plt_helper("Cars per Site", "Site", "Step", True)
+    
+    
+def velocity_to_density_lanes(delta=0.01, steps=100, prob=0.5):
+    mean_velocity = {'1': [], '2': [], '3': [], '4': []}
+    densities = np.arange(0.01, 1 + delta, delta)
+
+    for lane in mean_velocity.keys():
+        for density in densities:
+            curr_values = []
+            lane_model = NSModel(prob=float(prob),
+                                 n_lanes=int(lane),
+                                 lane_len=200,
+                                 max_velocity=5,
+                                 lane_density=density,
+                                 lane_changes=True)
+            for _ in range(0, steps + 1):
+                for _ in range(0, 10):
+                    lane_model.simulate()
+                    curr_values.append(lane_model.highway_velocity())
+            mean_velocity[lane].append(np.average(curr_values))
+
+    for lane in mean_velocity.keys():
+        plt.plot(densities, mean_velocity[lane], label=f"N={lane}")
+
+    plt_helper("Mean Velocity vs. Density for N highway lanes",
+               "Density (cars/lane)", "Mean Velocity (m/s)", True)
+
+
+def velocity_to_density_speedlim(steps=100, prob=0.5, delta=0.01):
+    mean_velocity = {'2': [], '4': [], '6': [], '8': []}
+    densities = np.arange(0.01, 1 + delta, delta)
+
+    for speedlim in mean_velocity.keys():
+        for density in densities:
+            curr_values = []
+            model = NSModel(prob=float(prob),
+                            n_lanes=2,
+                            lane_len=200,
+                            max_velocity=int(speedlim),
+                            lane_density=density,
+                            lane_changes=True)
+            for _ in range(0, steps + 1):
+                for _ in range(0, 10):
+                    model.simulate()
+                    curr_values.append(model.highway_velocity())
+            mean_velocity[speedlim].append(np.average(curr_values))
+
+    for speedlim in mean_velocity.keys():
+        plt.plot(densities, mean_velocity[speedlim], label=f"Speed limit={speedlim} (m/s)")
+
+    plt_helper("Mean Velocity vs. Density for varying speed limits",
+               "Density (cars/lane)", "Mean Velocity (m/s)", True)
+
+
+def flow_to_density(steps=100, prob=0.5, delta=0.05, lane_len=200):
+    flow_rates = {'1': [], '2': [], '3': [], '4': []}
+    densities = np.arange(0.05, 1 + delta, delta)
+
+    for lane in flow_rates.keys():
+        print (lane)
+        for density in densities:
+            print(density)
+            curr_values = []
+            for _ in range(0, steps + 1):
+                print('step')
+                model = NSModel(prob=float(prob),
+                                n_lanes=int(lane),
+                                lane_len=lane_len,
+                                max_velocity=5,
+                                lane_density=density,
+                                lane_changes=True)
+                for _ in range(0, lane_len):
+                    print ('step2')
+                    model.simulate()
+                curr_values.append(model.flow_count / lane_len)
+            flow_rates[lane].append(np.average(curr_values))
+
+    for lane in flow_rates.keys():
+        plt.plot(densities, flow_rates[lane], label=f"N={lane}")
+
+    plt_helper("Flow Rate vs. Density for N highway lanes",
+               "Density (cars/lane)", "Flow Rate (cars/step)", True)
 
 
 def validation():
@@ -103,6 +185,9 @@ def validation():
         executor.submit(velocity_to_density())
         executor.submit(flow_rate_to_density())
         executor.submit(cars_per_site())
+        executor.submit(velocity_to_density_lanes())
+        executor.submit(velocity_to_density_speedlim())
+        executor.submit(flow_to_density())
 
 
 if __name__ == "__main__":
