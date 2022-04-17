@@ -43,7 +43,6 @@ class NSModel:
         # for lane in self.highway:
             # print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
                           # for p in lane))
-        print(self.car_count())
 
     def car_count(self):
         counter = 0
