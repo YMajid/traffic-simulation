@@ -21,10 +21,10 @@ class NSModel:
 
         if initialize_highway:
             self.initialize_highway()
-        # print("Original")
-        # for lane in self.highway:
-            # print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
-                          # for p in lane))
+        print("Original")
+        for lane in self.highway:
+            print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
+                          for p in lane))
 
     def simulate(self):
         if self.lane_changes:
@@ -80,7 +80,7 @@ class NSModel:
 
                 self.highway[i, j] = self.get_max_velocity(i, j)
 
-                if 1 < self.highway[i, j] and rand.rand() < self.prob:
+                if 1 <= self.highway[i, j] and rand.rand() < self.prob:
                     self.highway[i, j] -= 1
 
     def get_distance(self, lane, pos):
