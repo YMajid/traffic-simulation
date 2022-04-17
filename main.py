@@ -8,11 +8,8 @@ if __name__ == "__main__":
     # model.simulate()
     # model.simulate()
     zipper = Zipper(n_lanes=3)
-    zipper.simulate()
-    zipper.simulate()
-    zipper.simulate()
-    zipper.simulate()
-    zipper.simulate()
+    for _ in range(20):
+        zipper.simulate()
 
     # import time
 

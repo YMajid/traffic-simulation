@@ -20,6 +20,19 @@ class Zipper(NSModel):
         self.portion_blocked = portion_blocked
         self.blockages = {}
         self.initialize_highway()
+        print("Original")
+        super().print_highway()
+
+    def simulate(self):
+        print(super().car_count())
+        self.update_velocity()
+        print("Velocity Change")
+        self.print_highway()
+
+        self.update_position()
+        print("Position Change")
+        self.print_highway()
+        print(super().car_count())
 
     def block_lanes(self):
         blocked_len = int(self.portion_blocked * self.lane_len)
@@ -76,7 +89,13 @@ class Zipper(NSModel):
                     direction = 1 if super().can_switch_lane(1, i, j) else - \
                         1 if super().can_switch_lane(-1, i, j) else 0
                     if direction == 0:
+                        distance = super().get_distance(i, j)
+                        print(distance - 1)
+                        self.highway[i, j] = distance - 1
+                        print("here??")
                         continue
+                    print("Here")
+                    print(f"i:{i}, j:{j}")
                     self.zipper_merge(direction, i, j)
 
                 if self.lane_len <= j + self.highway[i, j]:

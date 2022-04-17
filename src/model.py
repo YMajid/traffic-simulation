@@ -22,27 +22,26 @@ class NSModel:
         if initialize_highway:
             self.initialize_highway()
         # print("Original")
-        # for lane in self.highway:
-            # print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
-                          # for p in lane))
+        # self.print_highway()
 
     def simulate(self):
         if self.lane_changes:
             self.update_lanes()
-            # print("Lane Change")
-            # for lane in self.highway:
-                # print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
-                              # for p in lane))
+            print("Lane Change")
+            self.print_highway()
+
         self.update_velocity()
-        # print("Velocity Change")
-        # for lane in self.highway:
-            # print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
-                          # for p in lane))
+        print("Velocity Change")
+        self.print_highway()
+
         self.update_position()
-        # print("Position Change")
-        # for lane in self.highway:
-            # print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
-                          # for p in lane))
+        print("Position Change")
+        self.print_highway()
+
+    def print_highway(self):
+        for lane in self.highway:
+            print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
+                          for p in lane))
 
     def car_count(self):
         counter = 0
@@ -146,11 +145,10 @@ class NSModel:
 
     def can_switch_lane(self, direction=0, lane=0, pos=0):
         new_lane = lane + direction
-        # next_lane = lane + 2 * direction
         if (direction == 0 or new_lane < 0 or self.n_lanes <= new_lane
                 or 0 <= self.highway[new_lane, pos]
                 or self.will_crash(new_lane, pos) or self.get_max_velocity(
                     new_lane, pos) < self.get_max_velocity(lane, pos)):
             return False
-
+        print("HERE!")
         return True
