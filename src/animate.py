@@ -33,7 +33,7 @@ def animate_ns():
                     cmap=cmap, norm=norm)
     im.axes.get_xaxis().set_ticks([])
     im.axes.get_yaxis().set_ticks([])
-    plt.title('Bird eye view of 10 lane highway (NS Model)')
+    plt.title("Bird's eye view of 10 lane highway (NS Model)")
     plt.xlabel('Position')
     plt.ylabel('Lanes')
     def animate_func(i):
@@ -49,7 +49,7 @@ def animate_ns():
         fig, animate_func, frames=len(all_data) * 6, interval=1)
     writervideo = matplotlib.animation.FFMpegWriter(fps=24)
 
-    ani.save('./video.mp4', writer=writervideo)
+    ani.save('./ns.mp4', writer=writervideo)
 
 def animate_zipper():
     if os.name == 'nt':
@@ -63,16 +63,15 @@ def animate_zipper():
                         max_velocity=5,
                         lane_density=0.3,
                         lane_changes=True,
-                        n_blocked= 3,
+                        n_blocked= 5,
                         portion_blocked=0.2)
         
     all_data.append(model.highway)
     for _ in range(200):
         model.simulate()
         all_data.append(model.highway)
-
     fig = plt.figure(figsize=(30, 2))
-    bounds = [-3,-2.01, -0.1, 10]
+    bounds = [-4,-1.99, -0.1, 10]
     cmap = colors.ListedColormap(['black','white', 'red'])
     norm = colors.BoundaryNorm(bounds, cmap.N)
 
@@ -80,7 +79,7 @@ def animate_zipper():
                     cmap=cmap, norm=norm)
     im.axes.get_xaxis().set_ticks([])
     im.axes.get_yaxis().set_ticks([])
-    plt.title('Bird eye view of 10 lane highway (Zipper Model)')
+    plt.title("Bird's eye view of 10 lane highway (Zipper Model)")
     plt.xlabel('Position')
     plt.ylabel('Lanes')
     def animate_func(i):
@@ -89,14 +88,15 @@ def animate_zipper():
         return [im]
     
     
-    labels = ['Blocked highway','Empty space on highway', 'Car with P=0.3, Density=0.3']
-    patches = [ mpatches.Patch(color=['black','white', 'red'][i], label=labels[i]) for i in range(2) ]
-    plt.legend(handles=patches, bbox_to_anchor=(0, 0), loc=2, borderaxespad=0. )
+    labels = ['Blocked space on highway','Empty space on highway', 'Car with P=0.3, Density=0.3']
+    patches = [ mpatches.Patch(color=['black','white', 'red'][i], label=labels[i]) for i in range(3) ]
+    plt.legend(handles=patches, bbox_to_anchor=(-0.15, 0.5), loc=2, borderaxespad=0. )
     ani = animation.FuncAnimation(
         fig, animate_func, frames=len(all_data) * 6, interval=1)
     writervideo = matplotlib.animation.FFMpegWriter(fps=24)
 
-    ani.save('./video.mp4', writer=writervideo)
+    ani.save('./zipper.mp4', writer=writervideo)
     
 if __name__ == "__main__":
     animate_ns()
+    animate_zipper()
