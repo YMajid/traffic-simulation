@@ -70,8 +70,7 @@ class Zipper(NSModel):
         self.populate_highway()
 
     def zipper_merge(self, direction, lane, pos):
-        self.highway[(lane + direction) % self.n_lanes,
-                     pos] = self.highway[lane, pos]
+        self.highway[lane + direction, pos] = self.highway[lane, pos]
         self.highway[lane, pos] = -1
 
     def update_position(self):
@@ -84,18 +83,16 @@ class Zipper(NSModel):
                 if self.highway[i, j] < 0:
                     continue
 
-                if self.highway[i, (j + self.highway[i, j]) %
+                if self.highway[i, (j + self.highway[i, j] +
+                                    (1 if self.highway[i, j] == 0 else 0)) %
                                 self.lane_len] == -2:
                     direction = 1 if super().can_switch_lane(1, i, j) else - \
                         1 if super().can_switch_lane(-1, i, j) else 0
                     if direction == 0:
-                        distance = super().get_distance(i, j)
-                        print(distance - 1)
-                        self.highway[i, j] = distance - 1
                         print("here??")
                         continue
-                    print("Here")
-                    print(f"i:{i}, j:{j}")
+                    print("HERE")
+                    print(f"direction:{direction} i:{i}, j:{j}")
                     self.zipper_merge(direction, i, j)
 
                 if self.lane_len <= j + self.highway[i, j]:

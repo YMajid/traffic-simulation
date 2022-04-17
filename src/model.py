@@ -148,7 +148,6 @@ class NSModel:
         if (direction == 0 or new_lane < 0 or self.n_lanes <= new_lane
                 or 0 <= self.highway[new_lane, pos]
                 or self.will_crash(new_lane, pos) or self.get_max_velocity(
-                    new_lane, pos) < self.get_max_velocity(lane, pos)):
+                    new_lane, pos) > self.get_max_velocity(lane, pos)):
             return False
-        print("HERE!")
         return True
