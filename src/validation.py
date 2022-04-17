@@ -1,8 +1,10 @@
-import numpy as np
-from src.model import NSModel
-import matplotlib.pyplot as plt
-from multiprocessing import cpu_count
 from concurrent.futures import ProcessPoolExecutor as PoolExecutor
+from multiprocessing import cpu_count
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from src.model import NSModel
 
 
 def plt_helper(title, xlabel, ylabel, save=False):

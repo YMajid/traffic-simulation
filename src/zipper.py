@@ -20,6 +20,11 @@ class Zipper(NSModel):
         self.portion_blocked = portion_blocked
         self.blockages = {}
         self.initialize_highway()
+        print("Original")
+        for lane in self.highway:
+            print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
+                  for p in lane))
+        print(super().car_count())
 
     def block_lanes(self):
         blocked_len = int(self.portion_blocked * self.lane_len)
@@ -31,7 +36,8 @@ class Zipper(NSModel):
             pt_two = (pt_one + blocked_len) % self.lane_len
             start = pt_one if pt_one < pt_two else pt_two
             end = pt_two if pt_one < pt_two else pt_one
-            indices = np.arange(start, end)
+            # TODO Make sure indices array is of the correct length in a less hacky way
+            indices = np.arange(start, end)[:blocked_len]
             self.blockages[lane] = indices
             np.put(self.highway[lane], indices, [-2] * blocked_len)
 
@@ -42,7 +48,10 @@ class Zipper(NSModel):
                 np.arange(0, self.lane_len),
                 self.blockages[lane]) if lane in self.blockages else np.arange(
                     0, self.lane_len)
-            indices = rand.choice(valid_range, size=n_cars, replace=False)
+            # TODO Make sure we're alloting the correct number of cars
+            indices = rand.choice(valid_range,
+                                  size=min(n_cars, len(valid_range)),
+                                  replace=False)
             for index in indices:
                 self.highway[lane,
                              index] = rand.randint(0, self.max_velocity + 1)
@@ -51,3 +60,34 @@ class Zipper(NSModel):
         self.highway = super().highway_structure()
         self.block_lanes()
         self.populate_highway()
+
+    def zipper_merge(self, direction, lane, pos):
+        self.highway[(lane + direction) % self.n_lanes,
+                     pos] = self.highway[lane, pos]
+        self.highway[lane, pos] = -1
+
+    def update_position(self):
+        updated_highway = self.highway.copy()
+        for lane in updated_highway:
+            lane[lane != -2] = -1
+
+        for i in range(0, self.n_lanes):
+            for j in range(0, self.lane_len):
+                if self.highway[i, j] < 0:
+                    continue
+
+                if self.highway[i, (j + self.highway[i, j]) %
+                                self.lane_len] == -2:
+                    direction = 1 if super().can_switch_lane(1, i, j) else - \
+                        1 if super().can_switch_lane(-1, i, j) else 0
+                    if direction == 0:
+                        continue
+                    self.zipper_merge(direction, i, j)
+
+                if self.lane_len <= j + self.highway[i, j]:
+                    self.flow_count += 1
+
+                updated_highway[i, (j + self.highway[i, j]) %
+                                self.lane_len] = self.highway[i, j]
+
+        self.highway = updated_highway
