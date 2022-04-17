@@ -27,16 +27,17 @@ class NSModel:
     def simulate(self):
         if self.lane_changes:
             self.update_lanes()
-            print("Lane Change")
-            self.print_highway()
+            # print("Lane Change")
+            # self.print_highway()
 
         self.update_velocity()
-        print("Velocity Change")
-        self.print_highway()
+        # print("Velocity Change")
+        # self.print_highway()
 
         self.update_position()
-        print("Position Change")
-        self.print_highway()
+        # print("Position Change")
+        # self.print_highway()
+        # print(self.car_count())
 
     def print_highway(self):
         for lane in self.highway:

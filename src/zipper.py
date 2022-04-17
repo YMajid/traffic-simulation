@@ -20,19 +20,9 @@ class Zipper(NSModel):
         self.portion_blocked = portion_blocked
         self.blockages = {}
         self.initialize_highway()
-        print("Original")
-        super().print_highway()
-
-    def simulate(self):
-        print(super().car_count())
-        self.update_velocity()
-        print("Velocity Change")
-        self.print_highway()
-
-        self.update_position()
-        print("Position Change")
-        self.print_highway()
-        print(super().car_count())
+        # print("Original")
+        # super().print_highway()
+        # print(super().car_count())
 
     def block_lanes(self):
         blocked_len = int(self.portion_blocked * self.lane_len)
@@ -74,8 +64,6 @@ class Zipper(NSModel):
         self.highway[lane + direction,
                      pos] = max(1, self.highway[lane + direction, pos])
         self.highway[lane, pos] = -1
-        print(
-            f"[{lane+direction},{pos}] {self.highway[lane + direction, pos]}")
 
     def update_position(self):
         updated_highway = self.highway.copy()
@@ -88,14 +76,11 @@ class Zipper(NSModel):
                 if self.highway[i, j] < 0:
                     continue
 
-                if (i, j) in to_process:
-                    updated_highway[i, j] = self.highway[i, j]
-                    continue
-
                 if self.highway[i, (j + self.highway[i, j] +
                                     (1 if self.highway[i, j] == 0 else 0)) %
                                 self.lane_len] == -2:
                     to_process.add((i, j))
+                    updated_highway[i, j] = self.highway[i, j]
                     continue
 
                 if self.lane_len <= j + self.highway[i, j]:
@@ -107,24 +92,16 @@ class Zipper(NSModel):
         self.highway = updated_highway
 
         for i, j in to_process:
-            direction = 1 if super().can_switch_lane(1, i, j) else - \
-                1 if super().can_switch_lane(-1, i, j) else 0
+            direction = 1 if self.zipper_can_switch_lane(1, i, j) else - \
+                1 if self.zipper_can_switch_lane(-1, i, j) else 0
             if direction == 0:
-                print("here??")
                 continue
             self.zipper_merge(direction, i, j)
-            updated_highway[i, (j + self.highway[i, j]) %
-                            self.lane_len] = self.highway[i, j]
-            updated_highway[i + direction, (j + self.highway[i, j]) %
-                            self.lane_len] = self.highway[i + direction, j]
-        self.highway = updated_highway
 
-
-"""
-direction = 1 if super().can_switch_lane(1, i, j) else - \
-    1 if super().can_switch_lane(-1, i, j) else 0
-if direction == 0:
-    print("here??")
-    continue
-self.zipper_merge(direction, i, j)
-"""
+    def zipper_can_switch_lane(self, direction=0, lane=0, pos=0):
+        new_lane = lane + direction
+        if (direction == 0 or new_lane < 0 or self.n_lanes <= new_lane or
+                0 <= self.highway[new_lane, pos]) or self.highway[new_lane,
+                                                                  pos] == -2:
+            return False
+        return True
