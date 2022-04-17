@@ -84,7 +84,8 @@ class NSModel:
 
     def get_distance(self, lane, pos):
         distance = 1
-        while self.highway[lane, (pos + distance) % self.lane_len] == -1:
+        while self.highway[lane, (pos + distance) %
+                           self.lane_len] == -1 and distance < self.lane_len:
             distance += 1
         return distance
 
