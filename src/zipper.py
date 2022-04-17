@@ -20,11 +20,6 @@ class Zipper(NSModel):
         self.portion_blocked = portion_blocked
         self.blockages = {}
         self.initialize_highway()
-        # print("Original")
-        # for lane in self.highway:
-        # print(''.join('.' if p == -1 else '*' if p == -2 else str(p)
-        # for p in lane))
-        print(super().car_count())
 
     def block_lanes(self):
         blocked_len = int(self.portion_blocked * self.lane_len)
