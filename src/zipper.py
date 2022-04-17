@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.random as rand
 
-from src.model import NSModel
+from model import NSModel
 
 
 class Zipper(NSModel):
