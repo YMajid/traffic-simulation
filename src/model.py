@@ -51,7 +51,7 @@ class NSModel:
         return counter
 
     def lane_velocity(self):
-        return np.array([lane[lane != -1].mean() for lane in self.highway])
+        return np.array([lane[0 <= lane].mean() for lane in self.highway])
 
     def highway_velocity(self):
         return self.lane_velocity().mean()

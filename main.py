@@ -9,6 +9,8 @@ if __name__ == "__main__":
     # model.simulate()
     zipper = Zipper(n_lanes=3, lane_density=0.1)
     for _ in range(20):
+        print(zipper.highway_velocity())
+        print(zipper.highway)
         zipper.simulate()
 
     # import time

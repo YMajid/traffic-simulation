@@ -114,7 +114,7 @@ def cars_per_site(steps=200, model=NSModel):
 
 def velocity_to_density_lanes(delta=0.01, steps=100, prob=0.5, model=NSModel):
     mean_velocity = {"1": [], "2": [], "3": [], "4": []}
-    densities = np.arange(0.01, 1 + delta, delta)
+    densities = np.arange(0, 1 + delta, delta)
 
     for lane in mean_velocity.keys():
         for density in densities:
